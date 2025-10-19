@@ -6,7 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
     body {
-        font-family: 'Times New Roman', Times, serif;
+        font-family: Arial, Tahoma, sans-serif;
         direction: rtl;
         margin: 0;
         padding: 0;
@@ -89,7 +89,7 @@
         border-radius: 5px;
         border: 1px solid #ccc;
         box-sizing: border-box;
-        font-family: 'Times New Roman', Times, serif;
+        font-family: Arial, Tahoma, sans-serif;
     }
     button[type="submit"] {
         margin-top: 20px;
@@ -132,7 +132,6 @@
     <div class="terms" id="terms">
         <h3>الشروط:</h3>
         <ul>
-            <li>الدخول الساعة ٣ مساء / الخروج الساعة ٦ صباحًا</li>
             <li>العربون غير مسترد</li>
             <li>المنتجع غير مسؤول عن فقدان الأغراض الشخصية</li>
             <li>في حال الأضرار المادية يتحمل المستأجر كافة التكاليف</li>
@@ -222,7 +221,7 @@ form.addEventListener('submit', function(e){
         <strong>العربون:</strong> ${deposit} ريال <br>
         <span class="bold">المتبقي:</span> <span class="bold">${remaining} ريال</span> <br>
         <strong>تاريخ الحجز:</strong> ${dayName} ${bookingDate} <br>
-        <strong>ساعات الحجز:</strong> الدخول ٣ مساء / الخروج ٦ صباحًا
+        <strong>ساعات الحجز:</strong> من ٣ مساءً إلى ٦ صباحًا
     `;
 
     const todayStr = formatToday();
