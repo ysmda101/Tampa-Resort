@@ -56,7 +56,7 @@
         color: #555;
         margin-top: 25px;
     }
-    #printBtn, #calendarBtn {
+    #printBtn, #calendarBtn, #calendarICSBtn {
         background-color: #2980b9;
         color: #fff;
         border: none;
@@ -143,7 +143,8 @@
     <div class="contract-footer" id="contractFooter"></div>
 
     <button id="printBtn">طباعة / حفظ كصورة</button>
-    <button id="calendarBtn">أضف إلى Google Calendar</button>
+    <button id="calendarBtn">أضف إلى Google Calendar (كمبيوتر)</button>
+    <button id="calendarICSBtn">تحميل ملف التقويم (.ics)</button>
 </div>
 
 <script>
@@ -152,6 +153,7 @@
     const infoText = document.getElementById('infoText');
     const printBtn = document.getElementById('printBtn');
     const calendarBtn = document.getElementById('calendarBtn');
+    const calendarICSBtn = document.getElementById('calendarICSBtn');
     const contractFooter = document.getElementById('contractFooter');
 
     function getDayName(dateStr) {
@@ -175,6 +177,31 @@
         const endDate = bookingDate.replace(/-/g, '') + 'T060000Z';
         const url = `https://calendar.google.com/calendar/r/eventedit?text=حجز+${encodeURIComponent(firstName)}&dates=${startDate}/${endDate}&details=${encodeURIComponent(description)}`;
         window.open(url, '_blank');
+    }
+
+    function downloadICS(customerName, deposit, remaining, bookingDate) {
+        const firstName = customerName.split(' ')[0];
+        const startDate = bookingDate.replace(/-/g, '') + 'T150000';
+        const endDate = bookingDate.replace(/-/g, '') + 'T060000';
+        const icsContent = `
+BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:حجز ${firstName}
+DESCRIPTION:العربون: ${deposit} ريال\\nالمتبقي: ${remaining} ريال
+DTSTART:${startDate}
+DTEND:${endDate}
+END:VEVENT
+END:VCALENDAR
+        `.trim();
+
+        const blob = new Blob([icsContent], { type: 'text/calendar' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = customerName.trim().replace(/\s+/g, '_') + '.ics';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     form.addEventListener('submit', function(e){
@@ -202,7 +229,7 @@
         contract.style.display = 'block';
         window.scrollTo({ top: contract.offsetTop, behavior: 'smooth' });
 
-        // Google Calendar
+        // Google Calendar للكمبيوتر
         calendarBtn.onclick = function() {
             addToGoogleCalendar(customerName, deposit, remaining, bookingDate);
         }
@@ -215,11 +242,14 @@
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
                     link.download = fileName;
-                    document.body.appendChild(link);
                     link.click();
-                    document.body.removeChild(link);
                 });
             });
+        }
+
+        // تحميل ملف .ics للجوال والكمبيوتر
+        calendarICSBtn.onclick = function() {
+            downloadICS(customerName, deposit, remaining, bookingDate);
         }
     });
 </script>
