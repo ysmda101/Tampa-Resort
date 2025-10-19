@@ -11,6 +11,8 @@
         margin: 0;
         padding: 0;
         background-color: #fdf5e6; /* فاتح مائل للسكري */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
     .container {
         max-width: 800px;
@@ -148,42 +150,42 @@
 </div>
 
 <script>
-    const form = document.getElementById('bookingForm');
-    const contract = document.getElementById('contract');
-    const infoText = document.getElementById('infoText');
-    const printBtn = document.getElementById('printBtn');
-    const calendarBtn = document.getElementById('calendarBtn');
-    const calendarICSBtn = document.getElementById('calendarICSBtn');
-    const contractFooter = document.getElementById('contractFooter');
+const form = document.getElementById('bookingForm');
+const contract = document.getElementById('contract');
+const infoText = document.getElementById('infoText');
+const printBtn = document.getElementById('printBtn');
+const calendarBtn = document.getElementById('calendarBtn');
+const calendarICSBtn = document.getElementById('calendarICSBtn');
+const contractFooter = document.getElementById('contractFooter');
 
-    function getDayName(dateStr) {
-        const days = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-        const date = new Date(dateStr);
-        return days[date.getDay()];
-    }
+function getDayName(dateStr) {
+    const days = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+    const date = new Date(dateStr);
+    return days[date.getDay()];
+}
 
-    function formatToday() {
-        const today = new Date();
-        const day = String(today.getDate()).padStart(2,'0');
-        const month = String(today.getMonth()+1).padStart(2,'0');
-        const year = today.getFullYear();
-        return `${day}-${month}-${year}`;
-    }
+function formatToday() {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2,'0');
+    const month = String(today.getMonth()+1).padStart(2,'0');
+    const year = today.getFullYear();
+    return `${day}-${month}-${year}`;
+}
 
-    function addToGoogleCalendar(customerName, deposit, remaining, bookingDate) {
-        const firstName = customerName.split(' ')[0];
-        const description = `العربون: ${deposit} ريال\nالمتبقي: ${remaining} ريال`;
-        const startDate = bookingDate.replace(/-/g, '') + 'T150000Z';
-        const endDate = bookingDate.replace(/-/g, '') + 'T060000Z';
-        const url = `https://calendar.google.com/calendar/r/eventedit?text=حجز+${encodeURIComponent(firstName)}&dates=${startDate}/${endDate}&details=${encodeURIComponent(description)}`;
-        window.open(url, '_blank');
-    }
+function addToGoogleCalendar(customerName, deposit, remaining, bookingDate) {
+    const firstName = customerName.split(' ')[0];
+    const description = `العربون: ${deposit} ريال\nالمتبقي: ${remaining} ريال`;
+    const startDate = bookingDate.replace(/-/g, '') + 'T150000Z';
+    const endDate = bookingDate.replace(/-/g, '') + 'T060000Z';
+    const url = `https://calendar.google.com/calendar/r/eventedit?text=حجز+${encodeURIComponent(firstName)}&dates=${startDate}/${endDate}&details=${encodeURIComponent(description)}`;
+    window.open(url, '_blank');
+}
 
-    function downloadICS(customerName, deposit, remaining, bookingDate) {
-        const firstName = customerName.split(' ')[0];
-        const startDate = bookingDate.replace(/-/g, '') + 'T150000';
-        const endDate = bookingDate.replace(/-/g, '') + 'T060000';
-        const icsContent = `
+function downloadICS(customerName, deposit, remaining, bookingDate) {
+    const firstName = customerName.split(' ')[0];
+    const startDate = bookingDate.replace(/-/g, '') + 'T150000';
+    const endDate = bookingDate.replace(/-/g, '') + 'T060000';
+    const icsContent = `
 BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
@@ -193,65 +195,68 @@ DTSTART:${startDate}
 DTEND:${endDate}
 END:VEVENT
 END:VCALENDAR
-        `.trim();
+    `.trim();
 
-        const blob = new Blob([icsContent], { type: 'text/calendar' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = customerName.trim().replace(/\s+/g, '_') + '.ics';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = customerName.trim().replace(/\s+/g, '_') + '.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const customerName = document.getElementById('customerName').value;
+    const deposit = document.getElementById('deposit').value;
+    const remaining = document.getElementById('remaining').value;
+    const bookingDate = document.getElementById('bookingDate').value;
+
+    const dayName = getDayName(bookingDate);
+
+    infoText.innerHTML = `
+        <span class="booking-number">رقم الحجز: 117</span>
+        <span class="bold">اسم المستأجر:</span> <span class="bold">${customerName}</span> <br>
+        <strong>العربون:</strong> ${deposit} ريال <br>
+        <span class="bold">المتبقي:</span> <span class="bold">${remaining} ريال</span> <br>
+        <strong>تاريخ الحجز:</strong> ${dayName} ${bookingDate} <br>
+        <strong>ساعات الحجز:</strong> الدخول ٣ مساء / الخروج ٦ صباحًا
+    `;
+
+    const todayStr = formatToday();
+    contractFooter.innerHTML = `تاريخ العقد: ${todayStr}`;
+
+    contract.style.display = 'block';
+    window.scrollTo({ top: contract.offsetTop, behavior: 'smooth' });
+
+    // Google Calendar للكمبيوتر
+    calendarBtn.onclick = function() {
+        addToGoogleCalendar(customerName, deposit, remaining, bookingDate);
     }
 
-    form.addEventListener('submit', function(e){
-        e.preventDefault();
+    // حفظ الصورة باسم المستأجر بدون الأزرار
+    printBtn.onclick = function() {
+        printBtn.style.display = 'none';
+        calendarBtn.style.display = 'none';
+        calendarICSBtn.style.display = 'none';
 
-        const customerName = document.getElementById('customerName').value;
-        const deposit = document.getElementById('deposit').value;
-        const remaining = document.getElementById('remaining').value;
-        const bookingDate = document.getElementById('bookingDate').value;
+        html2canvas(contract, {scale:2}).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const newTab = window.open();
+            newTab.document.write(`<img src="${imgData}" style="width:100%">`);
+            printBtn.style.display = 'block';
+            calendarBtn.style.display = 'block';
+            calendarICSBtn.style.display = 'block';
+        });
+    }
 
-        const dayName = getDayName(bookingDate);
-
-        infoText.innerHTML = `
-            <span class="booking-number">رقم الحجز: 117</span>
-            <span class="bold">اسم المستأجر:</span> <span class="bold">${customerName}</span> <br>
-            <strong>العربون:</strong> ${deposit} ريال <br>
-            <span class="bold">المتبقي:</span> <span class="bold">${remaining} ريال</span> <br>
-            <strong>تاريخ الحجز:</strong> ${dayName} ${bookingDate} <br>
-            <strong>ساعات الحجز:</strong> الدخول ٣ مساء / الخروج ٦ صباحًا
-        `;
-
-        const todayStr = formatToday();
-        contractFooter.innerHTML = `تاريخ العقد: ${todayStr}`;
-
-        contract.style.display = 'block';
-        window.scrollTo({ top: contract.offsetTop, behavior: 'smooth' });
-
-        // Google Calendar للكمبيوتر
-        calendarBtn.onclick = function() {
-            addToGoogleCalendar(customerName, deposit, remaining, bookingDate);
-        }
-
-        // حفظ الصورة باسم المستأجر
-        printBtn.onclick = function() {
-            html2canvas(contract, {scale:2}).then(canvas => {
-                canvas.toBlob(function(blob) {
-                    const fileName = customerName.trim().replace(/\s+/g, '_') + '.png';
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = fileName;
-                    link.click();
-                });
-            });
-        }
-
-        // تحميل ملف .ics للجوال والكمبيوتر
-        calendarICSBtn.onclick = function() {
-            downloadICS(customerName, deposit, remaining, bookingDate);
-        }
-    });
+    // تحميل ملف .ics للجوال والكمبيوتر
+    calendarICSBtn.onclick = function() {
+        downloadICS(customerName, deposit, remaining, bookingDate);
+    }
+});
 </script>
 
 </body>
